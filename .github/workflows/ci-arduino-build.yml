@@ -6,13 +6,13 @@ env:
 on:
   pull_request:
     paths:
-      - Examples/**
+      - examples/**
       - src/**
       - library.properties
       - .github/workflows/ci-arduino-build.yml
   push:
     paths:
-      - Examples/**
+      - examples/**
       - src/**
       - library.properties
       - .github/workflows/ci-arduino-build.yml
@@ -40,11 +40,14 @@ jobs:
           arduino-cli lib install ACAN2040
           arduino-cli lib install Streaming
 
-      - name: Compile all examples for Raspberry Pi Pico
+      - name: Compile all examples for RP2040 and RP2350
         run: |
-          for dir in ./Examples/*; do
+          fqbns="rp2040:rp2040:rpipico rp2040:rp2040:rpipico2"
+          for dir in ./examples/*; do
             if [ -d "$dir" ] && ls "$dir"/*.ino >/dev/null 2>&1; then
-              echo "Compiling $dir"
-              arduino-cli compile --fqbn rp2040:rp2040:rpipico --library . "$dir"
+              for fqbn in $fqbns; do
+                echo "Compiling $fqbn: $dir"
+                arduino-cli compile --fqbn "$fqbn" --library . "$dir"
+              done
             fi
           done
